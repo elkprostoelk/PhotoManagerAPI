@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoManagerAPI.Web", "PhotoManagerAPI.Web\PhotoManagerAPI.Web.csproj", "{1EEE1A0D-3A22-4361-AB33-99D7536FC5B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoManagerAPI.DataAccess", "PhotoManagerAPI.DataAccess\PhotoManagerAPI.DataAccess.csproj", "{4984685E-3D75-4756-AE97-BF78E37DE587}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EEE1A0D-3A22-4361-AB33-99D7536FC5B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EEE1A0D-3A22-4361-AB33-99D7536FC5B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EEE1A0D-3A22-4361-AB33-99D7536FC5B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EEE1A0D-3A22-4361-AB33-99D7536FC5B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4984685E-3D75-4756-AE97-BF78E37DE587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4984685E-3D75-4756-AE97-BF78E37DE587}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4984685E-3D75-4756-AE97-BF78E37DE587}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4984685E-3D75-4756-AE97-BF78E37DE587}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
