@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoManagerAPI.Web", "Phot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoManagerAPI.DataAccess", "PhotoManagerAPI.DataAccess\PhotoManagerAPI.DataAccess.csproj", "{4984685E-3D75-4756-AE97-BF78E37DE587}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoManagerAPI.Core", "PhotoManagerAPI.Core\PhotoManagerAPI.Core.csproj", "{3E63BCE8-9EB8-480E-8DF9-7429EDAB9AF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoManagerAPI.Tests", "PhotoManagerAPI.Tests\PhotoManagerAPI.Tests.csproj", "{84413CA9-33F0-462C-81D2-11811DC58290}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{4984685E-3D75-4756-AE97-BF78E37DE587}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4984685E-3D75-4756-AE97-BF78E37DE587}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4984685E-3D75-4756-AE97-BF78E37DE587}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E63BCE8-9EB8-480E-8DF9-7429EDAB9AF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E63BCE8-9EB8-480E-8DF9-7429EDAB9AF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E63BCE8-9EB8-480E-8DF9-7429EDAB9AF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E63BCE8-9EB8-480E-8DF9-7429EDAB9AF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84413CA9-33F0-462C-81D2-11811DC58290}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84413CA9-33F0-462C-81D2-11811DC58290}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84413CA9-33F0-462C-81D2-11811DC58290}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84413CA9-33F0-462C-81D2-11811DC58290}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
