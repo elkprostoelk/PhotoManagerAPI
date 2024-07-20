@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using PhotoManagerAPI.Core.DTO;
 using PhotoManagerAPI.Core.Services;
+using PhotoManagerAPI.Web.Extensions;
 
 namespace PhotoManagerAPI.Web.Controllers
 {
@@ -40,7 +41,7 @@ namespace PhotoManagerAPI.Web.Controllers
                 return StatusCode(201, result);
             }
             
-            result.AddToModelState(ModelState);
+            ModelStateExtensions.AddErrors(ModelState, result);
             return BadRequest(ModelState);
         }
     }
