@@ -21,11 +21,8 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      working-directory: PhotoManagerAPI
       run: dotnet restore PhotoManagerAPI.sln
     - name: Build
-      working-directory: PhotoManagerAPI
       run: dotnet build PhotoManagerAPI.sln --no-restore
     - name: Test
-      working-directory: PhotoManagerAPI
       run: dotnet test PhotoManagerAPI.sln --no-build --verbosity normal
