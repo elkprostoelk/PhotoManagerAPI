@@ -68,6 +68,7 @@ public class UserServiceTests : BaseServiceTests
         {
             UserName = "mike_destro1r",
             Role = "User",
+            Email = "dexterm@mail.com",
             Password = "12n9-6El>nG",
             ConfirmPassword = "12n9-6El>nG",
             FullName = "Michael Dexter"

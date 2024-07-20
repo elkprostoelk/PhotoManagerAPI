@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhotoManagerAPI.DataAccess;
 
@@ -11,9 +12,11 @@ using PhotoManagerAPI.DataAccess;
 namespace PhotoManagerAPI.DataAccess.Migrations
 {
     [DbContext(typeof(PhotoManagerDbContext))]
-    partial class PhotoManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240720205028_UserEmailAdded")]
+    partial class UserEmailAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

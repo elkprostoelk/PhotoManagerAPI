@@ -58,6 +58,7 @@ public class UserService : IUserService
         {
             Id = Ulid.NewUlid().ToGuid(),
             Name = newUserDto.UserName,
+            Email = newUserDto.Email,
             FullName = newUserDto.FullName,
             RoleId = roleId.Value,
             Salt = salt,
