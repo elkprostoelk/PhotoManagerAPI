@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using Moq;
 using PhotoManagerAPI.Core.DTO;
 using PhotoManagerAPI.Core.Services;
@@ -6,6 +7,7 @@ using PhotoManagerAPI.DataAccess.Repositories;
 
 namespace PhotoManagerAPI.Tests.Services;
 
+[ExcludeFromCodeCoverage]
 public class UserServiceTests : BaseServiceTests
 {
     private readonly Mock<ILogger<UserService>> _loggerMock = new();
@@ -15,7 +17,7 @@ public class UserServiceTests : BaseServiceTests
     {
         var userRepository = new UserRepository(DbContext);
         var roleRepository = new RoleRepository(DbContext);
-        _userService = new UserService(userRepository, roleRepository, _loggerMock.Object);
+        _userService = new UserService(userRepository, roleRepository, _loggerMock.Object, Configuration);
     }
 
     [Fact]
@@ -82,5 +84,69 @@ public class UserServiceTests : BaseServiceTests
         
         Assert.True(result.IsSuccess);
         Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task SignInAsync_UserNotFound_ReturnsUnsuccess()
+    {
+        // Arrange
+
+        var loginDto = new LoginDto
+        {
+            UserNameOrEmail = "someusername",
+            Password = "somepassword"
+        };
+
+        // Act
+
+        var result = await _userService.SignInAsync(loginDto);
+
+        // Assert
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("User was not found.", result.Errors);
+    }
+
+    [Fact]
+    public async Task SignInAsync_InvalidPassword_ReturnsUnsuccess()
+    {
+        // Arrange
+
+        var loginDto = new LoginDto
+        {
+            UserNameOrEmail = "alexnevr@mail.com",
+            Password = "somepassword"
+        };
+
+        // Act
+
+        var result = await _userService.SignInAsync(loginDto);
+
+        // Assert
+
+        Assert.False(result.IsSuccess);
+        Assert.Contains("Invalid password.", result.Errors);
+    }
+
+    [Fact]
+    public async Task SignInAsync_ValidCredentials_ReturnsSuccess()
+    {
+        // Arrange
+
+        var loginDto = new LoginDto
+        {
+            UserNameOrEmail = "sallynvr1234@mail.com",
+            Password = "MyStrongPa$$word3"
+        };
+
+        // Act
+
+        var result = await _userService.SignInAsync(loginDto);
+
+        // Assert
+
+        Assert.True(result.IsSuccess);
+        Assert.Empty(result.Errors);
+        Assert.NotNull(result.Container);
     }
 }

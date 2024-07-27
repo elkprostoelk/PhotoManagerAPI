@@ -9,4 +9,11 @@ public class UserRepository(PhotoManagerDbContext dbContext) : Repository<User>(
         await EntitySet
             .AsNoTracking()
             .AnyAsync(u => u.Name == userName);
+
+    public async Task<User?> GetAsync(string userNameOrEmail) =>
+        await EntitySet
+            .AsNoTracking()
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Email == userNameOrEmail
+                || u.Name == userNameOrEmail);
 }

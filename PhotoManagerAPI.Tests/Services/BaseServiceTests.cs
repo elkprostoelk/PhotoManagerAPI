@@ -1,16 +1,32 @@
-﻿using System.Security.Cryptography;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using PhotoManagerAPI.DataAccess;
 using PhotoManagerAPI.DataAccess.Entities;
 
 namespace PhotoManagerAPI.Tests.Services;
 
+[ExcludeFromCodeCoverage]
 public class BaseServiceTests
 {
+    private const int HashByteSize = 256 / 8;
+    private const int IterationCount = 100_000;
+
     protected readonly PhotoManagerDbContext DbContext;
+    protected readonly IConfiguration Configuration;
 
     protected BaseServiceTests()
     {
+        Configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection([
+                new KeyValuePair<string, string?>("Jwt:Key", Guid.NewGuid().ToString()),
+                new KeyValuePair<string, string?>("Jwt:Issuer", "PhotoManagerApp"),
+                new KeyValuePair<string, string?>("Jwt:Audience", "PhotoManagerApp"),
+                new KeyValuePair<string, string?>("Jwt:DurationInMinutes", "60"),
+                ])
+            .Build();
         var dbContextOptions = new DbContextOptionsBuilder<PhotoManagerDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
@@ -21,6 +37,10 @@ public class BaseServiceTests
             new Role {Id = 2, Name = "Moderator"},
             new Role {Id = 3, Name = "User"}
         ]);
+
+        var salts = Enumerable.Range(0, 5)
+            .Select(i => Convert.ToBase64String(RandomNumberGenerator.GetBytes(128 / 8)))
+            .ToList();
         DbContext.Users.AddRange([
             new User
             {
@@ -29,8 +49,13 @@ public class BaseServiceTests
                 Email = "username@mail.com",
                 FullName = "User Middle Name",
                 CreationDate = DateTime.UtcNow,
-                PasswordHash = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256/8)),
-                Salt = Convert.ToBase64String(RandomNumberGenerator.GetBytes(128/8)),
+                PasswordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: "MyStrongPa$$word1",
+                    Convert.FromBase64String(salts[0]),
+                    prf: KeyDerivationPrf.HMACSHA256,
+                    iterationCount: IterationCount,
+                    numBytesRequested: HashByteSize)),
+                Salt = salts[0],
                 RoleId = 1
             },
             new User
@@ -40,8 +65,13 @@ public class BaseServiceTests
                 Email = "alexnevr@mail.com",
                 FullName = "Alex Carter Never",
                 CreationDate = DateTime.UtcNow,
-                PasswordHash = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256/8)),
-                Salt = Convert.ToBase64String(RandomNumberGenerator.GetBytes(128/8)),
+                PasswordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: "MyStrongPa$$word2",
+                    Convert.FromBase64String(salts[1]),
+                    prf: KeyDerivationPrf.HMACSHA256,
+                    iterationCount: IterationCount,
+                    numBytesRequested: HashByteSize)),
+                Salt = salts[1],
                 RoleId = 2
             },
             new User
@@ -51,8 +81,13 @@ public class BaseServiceTests
                 Email = "sallynvr1234@mail.com",
                 FullName = "Sally Middle Never",
                 CreationDate = DateTime.UtcNow,
-                PasswordHash = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256/8)),
-                Salt = Convert.ToBase64String(RandomNumberGenerator.GetBytes(128/8)),
+                PasswordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: "MyStrongPa$$word3",
+                    Convert.FromBase64String(salts[2]),
+                    prf: KeyDerivationPrf.HMACSHA256,
+                    iterationCount: IterationCount,
+                    numBytesRequested: HashByteSize)),
+                Salt = salts[2],
                 RoleId = 3
             },
             new User
@@ -62,8 +97,13 @@ public class BaseServiceTests
                 Email = "mike.never@mail.com",
                 FullName = "Michael Alex Never",
                 CreationDate = DateTime.UtcNow,
-                PasswordHash = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256/8)),
-                Salt = Convert.ToBase64String(RandomNumberGenerator.GetBytes(128/8)),
+                PasswordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: "MyStrongPa$$word4",
+                    Convert.FromBase64String(salts[3]),
+                    prf: KeyDerivationPrf.HMACSHA256,
+                    iterationCount: IterationCount,
+                    numBytesRequested: HashByteSize)),
+                Salt = salts[3],
                 RoleId = 3
             },
             new User
@@ -73,8 +113,13 @@ public class BaseServiceTests
                 Email = "alwsann@mail.com",
                 FullName = "Ann Middle Always",
                 CreationDate = DateTime.UtcNow,
-                PasswordHash = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256/8)),
-                Salt = Convert.ToBase64String(RandomNumberGenerator.GetBytes(128/8)),
+                PasswordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: "MyStrongPa$$word5",
+                    Convert.FromBase64String(salts[4]),
+                    prf: KeyDerivationPrf.HMACSHA256,
+                    iterationCount: IterationCount,
+                    numBytesRequested: HashByteSize)),
+                Salt = salts[4],
                 RoleId = 3
             }
         ]);

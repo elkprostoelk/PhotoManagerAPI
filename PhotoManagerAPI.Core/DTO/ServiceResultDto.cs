@@ -7,7 +7,7 @@ public class ServiceResultDto
     public List<string> Errors { get; set; } = [];
 }
 
-public class ServiceResultDto<T> : ServiceResultDto where T: new()
+public class ServiceResultDto<T> : ServiceResultDto
 {
     public T? Container { get; set; }
 }

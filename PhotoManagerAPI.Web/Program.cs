@@ -22,9 +22,10 @@ try
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
 
     builder.Services.ConfigureServices(configuration);
+    builder.Services.ConfigureAuth(configuration);
+    builder.Services.AddSwagger();
 
     var app = builder.Build();
 
@@ -37,7 +38,9 @@ try
     app.UseSwaggerUI();
 
     app.UseHttpsRedirection();
+    app.UseRouting();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();

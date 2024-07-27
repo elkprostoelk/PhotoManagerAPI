@@ -9,7 +9,7 @@ public class ModelStateExtensions
     {
         if (dto.Errors.Count > 0)
         {
-            dto.Errors.ForEach(e => modelState.AddModelError(string.Empty, e));
+            dto.Errors.ForEach(e => modelState.AddModelError("errors", e));
         }
     }
 }
