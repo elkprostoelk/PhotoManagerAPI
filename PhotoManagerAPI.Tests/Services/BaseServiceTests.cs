@@ -38,6 +38,13 @@ public class BaseServiceTests
             new Role {Id = 3, Name = "User"}
         ]);
 
+        SeedUsers();
+        
+        DbContext.SaveChanges();
+    }
+
+    private void SeedUsers()
+    {
         var salts = Enumerable.Range(0, 5)
             .Select(i => Convert.ToBase64String(RandomNumberGenerator.GetBytes(128 / 8)))
             .ToList();
@@ -123,6 +130,5 @@ public class BaseServiceTests
                 RoleId = 3
             }
         ]);
-        DbContext.SaveChanges();
     }
 }

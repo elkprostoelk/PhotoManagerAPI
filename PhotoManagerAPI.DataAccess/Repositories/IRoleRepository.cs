@@ -2,7 +2,7 @@
 
 namespace PhotoManagerAPI.DataAccess.Repositories;
 
-public interface IRoleRepository: IRepository<Role>
+public interface IRoleRepository: IRepository<Role, int>
 {
     Task<int?> GetAsync(string name);
 }

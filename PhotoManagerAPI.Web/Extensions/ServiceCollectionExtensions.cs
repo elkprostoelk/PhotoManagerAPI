@@ -1,11 +1,14 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PhotoManagerAPI.Core.Configurations;
 using PhotoManagerAPI.Core.Services;
 using PhotoManagerAPI.DataAccess;
+using PhotoManagerAPI.DataAccess.Entities;
 using PhotoManagerAPI.DataAccess.Repositories;
 
 namespace PhotoManagerAPI.Web.Extensions;
@@ -17,19 +20,25 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<PhotoManagerDbContext>(optBuilder =>
             optBuilder.UseSqlServer(configuration.GetConnectionString("PhotoManager")));
 
-        services.AddAutoMapper(config => config.AddMaps(AppDomain.CurrentDomain.GetAssemblies()));
-        services.AddValidatorsFromAssemblies(AppDomain.CurrentDomain.GetAssemblies());
+        services.AddAutoMapper(config => config.AddMaps(Assembly.GetExecutingAssembly()));
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddHttpContextAccessor();
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IRepository<Picture, Guid>, Repository<Picture, Guid>>();
         
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IPictureUploaderService, PictureUploaderService>();
+        services.AddScoped<IPictureService, PictureService>();
+
+        services.Configure<ImageOptions>(configuration.GetSection("ImageOptions"));
     }
 
     public static void ConfigureAuth(this IServiceCollection services, IConfiguration configuration)
     {
         if (!configuration.GetSection("Jwt").Exists())
-            throw new NullReferenceException("No JWT settings provided!");
+            throw new ArgumentNullException("Jwt");
         
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>

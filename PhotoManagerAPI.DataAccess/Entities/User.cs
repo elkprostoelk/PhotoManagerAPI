@@ -19,4 +19,6 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
 
     public DateTime CreationDate { get; set; }
+
+    public List<Picture> Pictures { get; set; } = [];
 }

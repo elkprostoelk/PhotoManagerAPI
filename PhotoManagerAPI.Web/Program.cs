@@ -1,3 +1,4 @@
+using Microsoft.Extensions.FileProviders;
 using PhotoManagerAPI.Web.Extensions;
 using Serilog;
 
@@ -42,6 +43,11 @@ try
 
     app.UseAuthentication();
     app.UseAuthorization();
+    
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(builder.Environment.ContentRootPath)
+    });
 
     app.MapControllers();
 

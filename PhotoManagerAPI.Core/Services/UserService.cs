@@ -147,9 +147,9 @@ public class UserService : IUserService
         var issuer = _configuration["Jwt:Issuer"];
         var audience = _configuration["Jwt:Audience"];
 
-        ArgumentNullException.ThrowIfNullOrEmpty(configKey);
-        ArgumentNullException.ThrowIfNullOrEmpty(issuer);
-        ArgumentNullException.ThrowIfNullOrEmpty(audience);
+        ArgumentException.ThrowIfNullOrEmpty(configKey);
+        ArgumentException.ThrowIfNullOrEmpty(issuer);
+        ArgumentException.ThrowIfNullOrEmpty(audience);
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

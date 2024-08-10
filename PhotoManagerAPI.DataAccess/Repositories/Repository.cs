@@ -2,13 +2,13 @@
 
 namespace PhotoManagerAPI.DataAccess.Repositories;
 
-public class Repository<T> : IRepository<T> where T: class
+public class Repository<T, TIdentifier> : IRepository<T, TIdentifier> where T : class
 {
-    protected readonly PhotoManagerDbContext _dbContext;
+    protected readonly PhotoManagerDbContext DbContext;
 
     public Repository(PhotoManagerDbContext dbContext)
     {
-        _dbContext = dbContext;
+        DbContext = dbContext;
         EntitySet = dbContext.Set<T>();
     }
 
@@ -18,7 +18,10 @@ public class Repository<T> : IRepository<T> where T: class
     {
         ArgumentNullException.ThrowIfNull(entity);
         
-        await _dbContext.AddAsync(entity);
-        return await _dbContext.SaveChangesAsync() > 0;
+        await EntitySet.AddAsync(entity);
+        return await DbContext.SaveChangesAsync() > 0;
     }
+
+    public async ValueTask<T?> GetAsync(TIdentifier id) =>
+        await EntitySet.FindAsync(id);
 }
