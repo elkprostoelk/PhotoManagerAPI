@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using PhotoManagerAPI.Core.Configurations;
@@ -6,6 +7,7 @@ using PhotoManagerAPI.Core.DTO;
 using PhotoManagerAPI.Core.Services;
 using PhotoManagerAPI.DataAccess.Entities;
 using PhotoManagerAPI.DataAccess.Repositories;
+using PhotoManagerAPI.Web.AutoMapper;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
@@ -27,13 +29,44 @@ namespace PhotoManagerAPI.Tests.Services
                 AllowedFileTypes = [".jpg", ".jpeg", ".png"],
                 MaxFileSizeBytes = 5 * 1024 * 1024
             });
+            var mapper = new MapperConfiguration(config => config.AddProfile<AutoMapperProfile>()).CreateMapper();
             _pictureService = new PictureService(
                 pictureRepository,
                 userRepository,
                 Configuration,
                 loggerMock.Object,
                 imageOptions,
-                _pictureUploaderServiceMock.Object);
+                _pictureUploaderServiceMock.Object,
+                mapper);
+        }
+
+        [Fact]
+        public async Task GetAsync_InvalidId_ReturnsNull()
+        {
+            // Act
+
+            var picture = await _pictureService.GetAsync(new Guid());
+
+            // Assert
+
+            Assert.Null(picture);
+        }
+
+        [Theory]
+        [InlineData("019157fb-a9a9-8edd-8391-7464a9e815d4")]
+        [InlineData("019157fb-a9bc-2b4e-8641-79ac3b5aa499")]
+        [InlineData("019157fb-a9bc-47ee-a1be-5150efd2a39d")]
+        public async Task GetAsync_ValidId_ReturnsPicture(string id)
+        {
+            // Act
+
+            var guidId = Guid.Parse(id);
+            var picture = await _pictureService.GetAsync(guidId);
+
+            // Assert
+
+            Assert.NotNull(picture);
+            Assert.Equal(picture.Id, guidId);
         }
 
         [Fact]

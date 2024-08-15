@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PhotoManagerAPI.Core.Configurations;
@@ -16,6 +19,7 @@ public class PictureService : IPictureService
     private readonly IConfiguration _configuration;
     private readonly ImageOptions _imageOptions;
     private readonly ILogger<PictureService> _logger;
+    private readonly IMapper _mapper;
 
     public PictureService(
         IRepository<Picture, Guid> pictureRepository,
@@ -23,7 +27,8 @@ public class PictureService : IPictureService
         IConfiguration configuration,
         ILogger<PictureService> logger,
         IOptions<ImageOptions> imageOptions,
-        IPictureUploaderService pictureUploaderService)
+        IPictureUploaderService pictureUploaderService,
+        IMapper mapper)
     {
         _pictureRepository = pictureRepository;
         _userRepository = userRepository;
@@ -31,6 +36,7 @@ public class PictureService : IPictureService
         _logger = logger;
         _imageOptions = imageOptions.Value;
         _pictureUploaderService = pictureUploaderService;
+        _mapper = mapper;
     }
 
     public async Task<ServiceResultDto> AddAsync(NewPictureDto newPictureDto)
@@ -106,6 +112,16 @@ public class PictureService : IPictureService
             IsSuccess = added,
             Errors = added ? [] : ["Failed to add a picture."]
         };
+    }
+
+    public async Task<PictureDto?> GetAsync(Guid id)
+    {
+        return await _pictureRepository
+            .EntitySet
+            .AsNoTracking()
+            .Include(p => p.User)
+            .ProjectTo<PictureDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync(p => p.Id == id);
     }
 
     private bool ValidateFile(NewPictureDto newPictureDto, out List<string> errors)

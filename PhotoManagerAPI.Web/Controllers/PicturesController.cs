@@ -28,6 +28,15 @@ namespace PhotoManagerAPI.Web.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPicture(Guid id)
+        {
+            PictureDto? picture = await _pictureService.GetAsync(id);
+            return picture is not null
+                ? Ok(picture)
+                : NotFound();
+        }
+
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> AddPicture([FromForm]NewPictureModel newPictureModel)

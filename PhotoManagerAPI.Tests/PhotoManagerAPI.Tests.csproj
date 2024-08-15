@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PhotoManagerAPI.Core\PhotoManagerAPI.Core.csproj" />
+      <ProjectReference Include="..\PhotoManagerAPI.Web\PhotoManagerAPI.Web.csproj" />
     </ItemGroup>
 
 </Project>

@@ -39,6 +39,8 @@ public class BaseServiceTests
         ]);
 
         SeedUsers();
+
+        SeedPictures();
         
         DbContext.SaveChanges();
     }
@@ -130,5 +132,41 @@ public class BaseServiceTests
                 RoleId = 3
             }
         ]);
+    }
+
+    private void SeedPictures()
+    {
+        DbContext.Pictures.AddRange([
+            new Picture
+            {
+                Id = Guid.Parse("019157fb-a9a9-8edd-8391-7464a9e815d4"),
+                Created = DateTime.UtcNow,
+                Title = "Test Picture 1",
+                Width = 1280,
+                Height = 768,
+                PhysicalPath = "img/2024/08/16/019157fb-a9a9-8edd-8391-7464a9e815d4.jpg",
+                UserId = Guid.Parse("0190d1a3-4389-98ff-816b-a83e4376af7f")
+            },
+            new Picture
+            {
+                Id = Guid.Parse("019157fb-a9bc-2b4e-8641-79ac3b5aa499"),
+                Created = DateTime.UtcNow,
+                Title = "Test Picture 2",
+                Width = 1024,
+                Height = 768,
+                PhysicalPath = "img/2024/08/16/019157fb-a9bc-2b4e-8641-79ac3b5aa499.jpg",
+                UserId = Guid.Parse("0190d1a3-439c-b416-92d3-6fd43e46ca0f")
+            },
+            new Picture
+            {
+                Id = Guid.Parse("019157fb-a9bc-47ee-a1be-5150efd2a39d"),
+                Created = DateTime.UtcNow,
+                Title = "Test Picture 3",
+                Width = 3840,
+                Height = 2160,
+                PhysicalPath = "img/2024/08/16/019157fb-a9bc-47ee-a1be-5150efd2a39d.jpg",
+                UserId = Guid.Parse("0190d1a3-439c-d68a-2636-7c9af6a8600b")
+            }
+            ]);
     }
 }
