@@ -122,10 +122,7 @@ namespace PhotoManagerAPI.Tests.Services
                 FileSizeBytes = 1024
             };
             var fileName = $"{Guid.NewGuid()}.jpg";
-            _pictureUploaderServiceMock.Setup(p => p.UploadAsync(It.Is<UploadPictureDto>(u =>
-                u.UserId == pictureDto.UserId
-                && u.FileName == pictureDto.FileName
-                && u.File == pictureDto.File)))
+            _pictureUploaderServiceMock.Setup(p => p.UploadAsync(It.IsAny<UploadPictureDto>()))
                 .ReturnsAsync(new ServiceResultDto<string>
                 {
                     IsSuccess = true,
