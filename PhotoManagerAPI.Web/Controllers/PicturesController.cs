@@ -28,6 +28,12 @@ namespace PhotoManagerAPI.Web.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> SearchPictures([FromQuery]SearchPicturesDto searchPicturesDto, CancellationToken cancellationToken)
+        {
+            return Ok(await _pictureService.SearchAsync(searchPicturesDto, cancellationToken));
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPicture(Guid id)
         {

@@ -6,4 +6,7 @@ public interface IPictureService
 {
     Task<ServiceResultDto> AddAsync(NewPictureDto newPictureDto);
     Task<PictureDto?> GetAsync(Guid id);
+    Task<PagedResultDto<ShortPictureDto>> SearchAsync(
+        SearchPicturesDto searchPicturesDto,
+        CancellationToken cancellationToken);
 }

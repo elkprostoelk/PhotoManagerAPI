@@ -5,9 +5,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PhotoManagerAPI.Core.Configurations;
+using PhotoManagerAPI.Core.Constants;
 using PhotoManagerAPI.Core.DTO;
 using PhotoManagerAPI.DataAccess.Entities;
 using PhotoManagerAPI.DataAccess.Repositories;
+using System.Linq.Expressions;
 
 namespace PhotoManagerAPI.Core.Services;
 
@@ -39,6 +41,32 @@ public class PictureService : IPictureService
         _mapper = mapper;
     }
 
+    public async Task<PagedResultDto<ShortPictureDto>> SearchAsync(
+        SearchPicturesDto searchPicturesDto,
+        CancellationToken cancellationToken)
+    {
+        var picturesQuery = _pictureRepository
+            .EntitySet
+            .AsNoTracking()
+            .AsQueryable();
+
+        picturesQuery = ApplyFilters(picturesQuery, searchPicturesDto);
+
+        picturesQuery = ApplySorting(picturesQuery, searchPicturesDto);
+
+        var totalCount = await picturesQuery.CountAsync(cancellationToken);
+        var pagesCount = Convert.ToInt32(Math.Ceiling((float)totalCount / searchPicturesDto.ItemsPerPage));
+
+        return new PagedResultDto<ShortPictureDto>
+        {
+            ItemsPerPage = searchPicturesDto.ItemsPerPage,
+            Page = searchPicturesDto.Page,
+            PageCount = pagesCount,
+            TotalItems = totalCount,
+            PageItems = await GetShortPictureDtoListAsync(picturesQuery, searchPicturesDto, cancellationToken)
+        };
+    }
+
     public async Task<ServiceResultDto> AddAsync(NewPictureDto newPictureDto)
     {
         var userExists = await _userRepository.ExistsAsync(newPictureDto.UserId);
@@ -64,12 +92,8 @@ public class PictureService : IPictureService
             };
         }
 
-        var fileUploadResult = await _pictureUploaderService.UploadAsync(new UploadPictureDto
-        {
-            File = newPictureDto.File,
-            FileName = newPictureDto.FileName,
-            UserId = newPictureDto.UserId
-        });
+        var fileUploadResult = await _pictureUploaderService.UploadAsync(
+            _mapper.Map<UploadPictureDto>(newPictureDto));
 
         if (!fileUploadResult.IsSuccess)
         {
@@ -149,5 +173,107 @@ public class PictureService : IPictureService
         }
 
         return isFileSizeValid && isFileTypeValid;
+    }
+
+    private async Task<List<ShortPictureDto>> GetShortPictureDtoListAsync(
+        IQueryable<Picture> picturesQuery,
+        SearchPicturesDto searchPicturesDto,
+        CancellationToken cancellationToken) =>
+        await picturesQuery
+                .Include(p => p.User)
+                .Skip((searchPicturesDto.Page - 1) * searchPicturesDto.ItemsPerPage)
+                .Take(searchPicturesDto.ItemsPerPage)
+                .ProjectTo<ShortPictureDto>(_mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+    private static IQueryable<Picture> ApplyFilters(IQueryable<Picture> picturesQuery, SearchPicturesDto searchPicturesDto)
+    {
+        if (searchPicturesDto is null)
+            return picturesQuery;
+
+        if (!string.IsNullOrWhiteSpace(searchPicturesDto.Title))
+        {
+            picturesQuery = picturesQuery.Where(p => p.Title.Contains(searchPicturesDto.Title));
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchPicturesDto.CameraModel))
+        {
+            picturesQuery = picturesQuery.Where(p => !string.IsNullOrWhiteSpace(p.CameraModel)
+                && p.CameraModel.Contains(p.CameraModel));
+        }
+
+        if (searchPicturesDto.DelayTimeMilliseconds.HasValue)
+        {
+            picturesQuery = picturesQuery.Where(p => p.DelayTimeMilliseconds.HasValue
+                && p.DelayTimeMilliseconds == searchPicturesDto.DelayTimeMilliseconds);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchPicturesDto.Description))
+        {
+            picturesQuery = picturesQuery.Where(p => !string.IsNullOrWhiteSpace(p.Description)
+                && p.Description.Contains(p.Description));
+        }
+
+        if (searchPicturesDto.Flash.HasValue)
+        {
+            picturesQuery = picturesQuery.Where(p => p.Flash.HasValue
+                && p.Flash == searchPicturesDto.Flash);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchPicturesDto.FocusDistance))
+        {
+            picturesQuery = picturesQuery.Where(p => !string.IsNullOrWhiteSpace(p.FocusDistance)
+                && p.FocusDistance.Contains(p.FocusDistance));
+        }
+
+        if (searchPicturesDto.Width.HasValue)
+        {
+            picturesQuery = picturesQuery.Where(p => p.Width == searchPicturesDto.Width);
+        }
+
+        if (searchPicturesDto.Height.HasValue)
+        {
+            picturesQuery = picturesQuery.Where(p => p.Height == searchPicturesDto.Height);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchPicturesDto.Iso))
+        {
+            picturesQuery = picturesQuery.Where(p => !string.IsNullOrWhiteSpace(p.Iso)
+                && p.Iso.Contains(p.Iso));
+        }
+
+        if (searchPicturesDto.ShootingDateFrom.HasValue)
+        {
+            picturesQuery = picturesQuery.Where(p => p.ShootingDate.HasValue
+                && p.ShootingDate >= searchPicturesDto.ShootingDateFrom);
+        }
+
+        if (searchPicturesDto.ShootingDateTo.HasValue)
+        {
+            picturesQuery = picturesQuery.Where(p => p.ShootingDate.HasValue
+                && p.ShootingDate <= searchPicturesDto.ShootingDateTo);
+        }
+
+        return picturesQuery;
+    }
+
+    private static IQueryable<Picture> ApplySorting(IQueryable<Picture> picturesQuery, SearchPicturesDto searchPicturesDto)
+    {
+        if (string.IsNullOrWhiteSpace(searchPicturesDto.SortBy))
+        {
+            return picturesQuery;
+        }
+
+        Expression<Func<Picture, object?>> sortingExpression = searchPicturesDto.SortBy switch
+        {
+            SortingFields.Title => p => p.Title,
+            SortingFields.CreatedDate => p => p.Created,
+            SortingFields.ShootingDate => p => p.ShootingDate,
+            _ => p => p.Created
+        };
+
+        return searchPicturesDto is { SortOrder: Enums.SortOrder.Ascending }
+            ? picturesQuery.OrderBy(sortingExpression)
+            : picturesQuery.OrderByDescending(sortingExpression);
     }
 }
