@@ -27,6 +27,7 @@ try
     builder.Services.ConfigureServices(configuration);
     builder.Services.ConfigureAuth(configuration);
     builder.Services.AddSwagger();
+    builder.Services.AddCors();
 
     var app = builder.Build();
 
@@ -40,6 +41,10 @@ try
 
     app.UseHttpsRedirection();
     app.UseRouting();
+    app.UseCors(c => c
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowAnyOrigin());
 
     app.UseAuthentication();
     app.UseAuthorization();
