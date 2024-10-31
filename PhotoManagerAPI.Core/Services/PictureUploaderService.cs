@@ -49,7 +49,7 @@ namespace PhotoManagerAPI.Core.Services
                         uploadPictureDto.FileName,
                         newFilePath,
                         uploadPictureDto.UserId);
-                    result.Container = newFilePath[newFilePath.IndexOf("img")..];
+                    result.Container = newFilePath[newFilePath.IndexOf("img", StringComparison.Ordinal)..];
                 }
                 else
                 {
