@@ -30,7 +30,7 @@ public class NewUserDtoValidator: AbstractValidator<NewUserDto>
             .Length(8, 20)
             .Matches(PasswordRegex);
         
-        RuleFor(dto => dto.Password)
+        RuleFor(dto => dto.ConfirmPassword)
             .NotEmpty()
             .Length(8, 20)
             .Matches(PasswordRegex)
