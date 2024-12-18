@@ -9,4 +9,6 @@ public interface IRepository<T, TIdentifier> where T: class
     Task<bool> CreateAsync(T entity);
 
     ValueTask<T?> GetAsync(TIdentifier id);
+
+    Task<bool> RemoveAsync(T entity);
 }

@@ -18,7 +18,6 @@ public class PictureService : IPictureService
     private readonly IPictureUploaderService _pictureUploaderService;
     private readonly IRepository<Picture, Guid> _pictureRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IConfiguration _configuration;
     private readonly ImageOptions _imageOptions;
     private readonly ILogger<PictureService> _logger;
     private readonly IMapper _mapper;
@@ -26,7 +25,6 @@ public class PictureService : IPictureService
     public PictureService(
         IRepository<Picture, Guid> pictureRepository,
         IUserRepository userRepository,
-        IConfiguration configuration,
         ILogger<PictureService> logger,
         IOptions<ImageOptions> imageOptions,
         IPictureUploaderService pictureUploaderService,
@@ -34,7 +32,6 @@ public class PictureService : IPictureService
     {
         _pictureRepository = pictureRepository;
         _userRepository = userRepository;
-        _configuration = configuration;
         _logger = logger;
         _imageOptions = imageOptions.Value;
         _pictureUploaderService = pictureUploaderService;
@@ -65,6 +62,37 @@ public class PictureService : IPictureService
             TotalItems = totalCount,
             PageItems = await GetShortPictureDtoListAsync(picturesQuery, searchPicturesDto, cancellationToken)
         };
+    }
+
+    public async Task<ServiceResultDto> DeletePictureAsync(Guid id, Guid userId)
+    {
+        var result = new ServiceResultDto();
+        var picture = await _pictureRepository.GetAsync(id);
+        if (picture is null)
+        {
+            result.IsSuccess = false;
+            result.Errors.Add("Picture does not exist");
+            return result;
+        }
+        
+        var user = await _userRepository
+            .EntitySet
+            .AsNoTracking()
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (picture.UserId != userId
+            || user?.Role is null || user.Role.Name.Equals("User", StringComparison.InvariantCultureIgnoreCase))
+        {
+            result.IsSuccess = false;
+            result.Errors.Add("You are not authorized to delete this picture");
+            return result;
+        }
+        
+        var deleted = await _pictureRepository.RemoveAsync(picture);
+        result.IsSuccess = deleted;
+        
+        return result;
     }
 
     public async Task<ServiceResultDto> AddAsync(NewPictureDto newPictureDto)
@@ -188,8 +216,7 @@ public class PictureService : IPictureService
 
     private static IQueryable<Picture> ApplyFilters(IQueryable<Picture> picturesQuery, SearchPicturesDto searchPicturesDto)
     {
-        if (searchPicturesDto is null)
-            return picturesQuery;
+        ArgumentNullException.ThrowIfNull(picturesQuery);
 
         if (!string.IsNullOrWhiteSpace(searchPicturesDto.Title))
         {
@@ -205,7 +232,7 @@ public class PictureService : IPictureService
         if (searchPicturesDto.DelayTimeMilliseconds.HasValue)
         {
             picturesQuery = picturesQuery.Where(p => p.DelayTimeMilliseconds.HasValue
-                && p.DelayTimeMilliseconds == searchPicturesDto.DelayTimeMilliseconds);
+                && Math.Abs(p.DelayTimeMilliseconds.Value - searchPicturesDto.DelayTimeMilliseconds.Value) < float.Epsilon);
         }
 
         if (!string.IsNullOrWhiteSpace(searchPicturesDto.Description))
@@ -259,11 +286,6 @@ public class PictureService : IPictureService
 
     private static IQueryable<Picture> ApplySorting(IQueryable<Picture> picturesQuery, SearchPicturesDto searchPicturesDto)
     {
-        if (string.IsNullOrWhiteSpace(searchPicturesDto.SortBy))
-        {
-            return picturesQuery;
-        }
-
         Expression<Func<Picture, object?>> sortingExpression = searchPicturesDto.SortBy switch
         {
             SortingFields.Title => p => p.Title,

@@ -24,4 +24,12 @@ public class Repository<T, TIdentifier> : IRepository<T, TIdentifier> where T : 
 
     public async ValueTask<T?> GetAsync(TIdentifier id) =>
         await EntitySet.FindAsync(id);
+
+    public async Task<bool> RemoveAsync(T entity)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+        
+        EntitySet.Remove(entity);
+        return await DbContext.SaveChangesAsync() > 0;
+    }
 }

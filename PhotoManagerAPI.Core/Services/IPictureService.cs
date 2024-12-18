@@ -9,4 +9,5 @@ public interface IPictureService
     Task<PagedResultDto<ShortPictureDto>> SearchAsync(
         SearchPicturesDto searchPicturesDto,
         CancellationToken cancellationToken);
+    Task<ServiceResultDto> DeletePictureAsync(Guid id, Guid userId);
 }

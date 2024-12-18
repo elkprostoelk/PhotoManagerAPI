@@ -34,10 +34,10 @@ namespace PhotoManagerAPI.Web.Controllers
             return Ok(await _pictureService.SearchAsync(searchPicturesDto, cancellationToken));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetPicture(Guid id)
         {
-            PictureDto? picture = await _pictureService.GetAsync(id);
+            var picture = await _pictureService.GetAsync(id);
             return picture is not null
                 ? Ok(picture)
                 : NotFound();
@@ -65,6 +65,21 @@ namespace PhotoManagerAPI.Web.Controllers
             }
             
             ModelStateExtensions.AddErrors(ModelState, creationResult);
+            return BadRequest(ModelState);
+        }
+
+        [Authorize]
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeletePicture(Guid id)
+        {
+            var deletingResult = await _pictureService.DeletePictureAsync(id, User.GetUserId());
+
+            if (deletingResult.IsSuccess)
+            {
+                return NoContent();
+            }
+            
+            ModelStateExtensions.AddErrors(ModelState, deletingResult);
             return BadRequest(ModelState);
         }
     }

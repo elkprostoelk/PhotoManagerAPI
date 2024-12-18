@@ -33,7 +33,6 @@ namespace PhotoManagerAPI.Tests.Services
             _pictureService = new PictureService(
                 pictureRepository,
                 userRepository,
-                Configuration,
                 loggerMock.Object,
                 imageOptions,
                 _pictureUploaderServiceMock.Object,
@@ -45,7 +44,7 @@ namespace PhotoManagerAPI.Tests.Services
         {
             // Act
 
-            var picture = await _pictureService.GetAsync(new Guid());
+            var picture = await _pictureService.GetAsync(Guid.Empty);
 
             // Assert
 
@@ -70,7 +69,7 @@ namespace PhotoManagerAPI.Tests.Services
         }
 
         [Fact]
-        public async Task AddAsync_NoValidUser_ReturnsUnsuccess()
+        public async Task AddAsync_NoValidUser_ReturnsUnSuccess()
         {
             // Act
 
@@ -85,7 +84,7 @@ namespace PhotoManagerAPI.Tests.Services
         [Theory]
         [InlineData(6 * 1024 * 1024, "image.jpeg", "File size is too large.")]
         [InlineData(4 * 1024 * 1024, "image.gif", "File type is invalid.")]
-        public async Task AddAsync_FileInvalid_ReturnsUnsuccess(long fileSizeBytes, string fileName, string validationError)
+        public async Task AddAsync_FileInvalid_ReturnsUnSuccess(long fileSizeBytes, string fileName, string validationError)
         {
             // Arrange
 
@@ -137,6 +136,53 @@ namespace PhotoManagerAPI.Tests.Services
 
             Assert.True(result.IsSuccess);
             Assert.Empty(result.Errors);
+        }
+
+        [Fact]
+        public async Task DeletePictureAsync_InvalidId_ReturnsUnSuccess()
+        {
+            // Act
+            
+            var result = await _pictureService.DeletePictureAsync(Guid.Empty, Guid.Empty);
+            
+            // Assert
+            
+            Assert.False(result.IsSuccess);
+            Assert.Contains("Picture does not exist", result.Errors);
+        }
+
+        [Fact]
+        public async Task DeletePictureAsync_InvalidUser_ReturnsUnSuccess()
+        {
+            // Arrange
+            
+            var pictureId = Guid.Parse("019157fb-a9bc-47ee-a1be-5150efd2a39d");
+            
+            // Act
+            
+            var result = await _pictureService.DeletePictureAsync(pictureId, Guid.Empty);
+            
+            // Assert
+            
+            Assert.False(result.IsSuccess);
+            Assert.Contains("You are not authorized to delete this picture", result.Errors);
+        }
+
+        [Fact]
+        public async Task DeletePictureAsync_ValidData_ReturnsSuccess()
+        {
+            // Arrange
+            
+            var pictureId = Guid.Parse("0193da37-6a11-5481-c192-ff2bae0b7097");
+            var userId = Guid.Parse("0190d1a3-4389-98ff-816b-a83e4376af7f");
+            
+            // Act
+            
+            var result = await _pictureService.DeletePictureAsync(pictureId, userId);
+            
+            // Assert
+            
+            Assert.True(result.IsSuccess);
         }
     }
 }

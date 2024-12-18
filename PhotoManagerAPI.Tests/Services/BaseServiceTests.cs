@@ -166,6 +166,16 @@ public class BaseServiceTests
                 Height = 2160,
                 PhysicalPath = "img/2024/08/16/019157fb-a9bc-47ee-a1be-5150efd2a39d.jpg",
                 UserId = Guid.Parse("0190d1a3-439c-d68a-2636-7c9af6a8600b")
+            },
+            new Picture
+            {
+                Id = Guid.Parse("0193da37-6a11-5481-c192-ff2bae0b7097"),
+                Created = DateTime.UtcNow,
+                Title = "Test Picture 4",
+                Width = 3840,
+                Height = 2160,
+                PhysicalPath = "img/2024/08/16/0193da37-6a11-5481-c192-ff2bae0b7097.jpg",
+                UserId = Guid.Parse("0190d1a3-4389-98ff-816b-a83e4376af7f")
             }
             ]);
     }
